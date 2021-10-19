@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import datasource from "./data.js";
+import { useEffect, useState, useCallback } from "react";
+import query from "./Query";
 
 function App() {
+  let [queryString, setQueryString] = useState("");
+
+  const fetchData = useCallback(() => {
+   const queryText = JSON.stringify(query);
+
+    fetch(datasource.baseURL, {
+      method: "POST",
+      headers: datasource.headers,
+      body: queryText,
+    }).then((response) => response.json())
+      .then((data) => {
+        const datalist = data.data.list;
+        setQueryString(datalist);
+        console.log(datalist);
+        console.log(datalist[0].todo);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <ul> 
+      {queryString&&queryString.map((item,i) => (
+         <li key={i}>{item.todo}  {item.done}</li>  
+      ))
+     }
+    </ul>
   );
 }
 
 export default App;
+
+
+
+
+
